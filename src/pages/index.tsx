@@ -1,7 +1,8 @@
-import { dehydrate, QueryClient } from '@tanstack/react-query';
+import { GetServerSideProps, NextPage } from 'next';
+import { dehydrate } from '@tanstack/react-query';
 import gql from 'graphql-tag';
 import { useMeQuery } from 'generated/graphql';
-import { GetServerSideProps, NextPage } from 'next';
+import { queryClient } from 'clients/query';
 
 gql`
   query Me {
@@ -11,7 +12,6 @@ gql`
   }
 `;
 
-const queryClient = new QueryClient();
 export const getServerSideProps: GetServerSideProps = async ({ req }) => {
   const { cookie } = req.headers;
   console.log('Cookie', req.headers.cookie);
@@ -25,12 +25,14 @@ export const getServerSideProps: GetServerSideProps = async ({ req }) => {
   };
 };
 
-export const Home: NextPage = props => {
+const Home: NextPage = props => {
   console.log('Props', props);
-  const { data } = useMeQuery(undefined, {});
+  const { data, isLoading } = useMeQuery();
   console.log('Data', data);
 
-  if (!data) return <div>loading</div>;
+  if (isLoading) return <div>Loading</div>;
 
   return <>{JSON.stringify(data)}</>;
 };
+
+export default Home;
